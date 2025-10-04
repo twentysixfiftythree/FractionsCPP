@@ -82,18 +82,18 @@ int main() {
 	// Test input, exception and +=:
 	Fraction sum(0);
 	Fraction fin;
-	cout << "\nSumming fractions. Enter fractions as \"1/2\" or just enter a single integer." << endl;
-	cout << "Enter zero to end the summation:" << endl;
-	do {
-		cout << "Enter a fraction to add to sum: ";
-		try {
-			cin >> fin;
-			sum += fin;
-		} catch (FractionException &e) {
-			cout << e.what() << endl;
-		}
-	} while (fin != 0);
-	cout << "Sum is: " << sum << endl;
+//	cout << "\nSumming fractions. Enter fractions as \"1/2\" or just enter a single integer." << endl;
+//	cout << "Enter zero to end the summation:" << endl;
+//	do {
+//		cout << "Enter a fraction to add to sum: ";
+//		try {
+//			cin >> fin;
+//			sum += fin;
+//		} catch (FractionException &e) {
+//			cout << e.what() << endl;
+//		}
+//	} while (fin != 0);
+//	cout << "Sum is: " << sum << endl;
 
 	return 0;
 
