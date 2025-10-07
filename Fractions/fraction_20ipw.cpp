@@ -6,14 +6,84 @@
 //
 #include <iostream>
 #include "fraction20ipw.h"
+#include <cmath>
 
+// ----
+// constructors
+// ----
+Fraction::Fraction(int n) : _numerator(n), _denominator(1) {}
+Fraction::Fraction(int n, int d) {
+    if (d == 0) throw FractionException();
+    if (d < 0 && n < 0) {
+        _numerator = std::abs(n);
+        _denominator = std::abs(d);
+    }
+    else if (d < 0) {  // n >= 0
+        _numerator = -n;
+        _denominator = std::abs(d);
+    }
+    else {
+        _numerator = n;
+        _denominator = d;
+    }
+    reduce();
+}
+// Invalid fraction
+const char* FractionException::what() const noexcept {
+    return "Invalid Fraction. E.g div by 0";
+}
+// internal functions
+int Fraction::gcd(int a, int b) {
+    return b == 0 ? a : gcd(b, a % b);
+}
 
-
+void Fraction::reduce() {
+    int g = gcd(abs(_numerator), _denominator);
+    _numerator /= g;
+    _denominator /= g;
+}
+// iostreamed functions
 std::ostream& operator<<(std::ostream& out, const Fraction& frac) {
     out << frac.numerator()<< '/' << frac.denominator();
     return out;
 }
 
+std::istream& operator>>(std::istream& in, Fraction& frac) {
+    std::string input;
+    if (!(in >> input)) {
+        // no input read (EOF or stream error)
+        return in;
+    }
+
+    size_t slashPos = input.find('/');
+
+    try {
+        if (slashPos == std::string::npos) {
+            // single integer case
+            int n = std::stoi(input);
+            frac = Fraction(n);
+        } else {
+            // fraction case
+            std::string numStr = input.substr(0, slashPos);
+            std::string denStr = input.substr(slashPos + 1);
+
+            if (denStr.empty()) throw FractionException();
+
+            int n = std::stoi(numStr);
+            int d = std::stoi(denStr);
+            if (d == 0) throw FractionException();
+
+            frac = Fraction(n, d);
+        }
+    }
+    catch (const std::invalid_argument&) {
+        // stoi failed (non-numeric)
+        in.setstate(std::ios::failbit);
+        throw FractionException();
+    }
+
+    return in;
+}
 Fraction operator+(const Fraction& left, const Fraction& right) {
     int common_denom = left.denominator() * right.denominator();
     int left_num = left.numerator() * right.denominator();
@@ -33,10 +103,7 @@ Fraction operator-(const Fraction& left, const Fraction& right){
 }
 
 
-//Fraction operator-(const Fraction& left, const int& num) {
-//    Fraction num_frac = Fraction(num);
-//    return left-num_frac;
-//}
+
 
 Fraction operator*(const Fraction& left, const Fraction& right) {
     return Fraction(left.numerator()*right.numerator(), left.denominator()*right.denominator());
