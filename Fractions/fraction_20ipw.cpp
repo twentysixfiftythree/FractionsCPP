@@ -7,7 +7,7 @@
 #include <iostream>
 #include "fraction20ipw.h"
 #include <cmath>
-
+#include <string>
 // ----
 // constructors
 // ----
@@ -28,7 +28,7 @@ Fraction::Fraction(int n, int d) {
     }
     reduce();
 }
-// Invalid fraction
+// invalid fraction. could be a non fraction, or denominator = 0
 const char* FractionException::what() const noexcept {
     return "Invalid Fraction. E.g div by 0";
 }
@@ -78,27 +78,32 @@ std::istream& operator>>(std::istream& in, Fraction& frac) {
     }
     catch (const std::invalid_argument&) {
         // stoi failed (non-numeric)
+        // this is best practice to handle invalid streams.
         in.setstate(std::ios::failbit);
         throw FractionException();
     }
 
     return in;
 }
+// operators that don't modify the object
 Fraction operator+(const Fraction& left, const Fraction& right) {
+    // create common denominator
     int common_denom = left.denominator() * right.denominator();
     int left_num = left.numerator() * right.denominator();
     int right_num = right.numerator() * left.denominator();
 
     int result_num = left_num + right_num;
-
+    // will automatically normalize results regardless
     return Fraction(result_num, common_denom);
 }
 
 Fraction operator-(const Fraction& left, const Fraction& right){
+    // create common denominator
     int common_denom = left.denominator() * right.denominator();
     int left_num = left.numerator() * right.denominator();
     int right_num = right.numerator() * left.denominator();
     int result_num = left_num - right_num;
+    // will automatically normalize results regardless
     return Fraction(result_num, common_denom);
 }
 
@@ -121,13 +126,15 @@ Fraction operator/(const Fraction& left, const Fraction& right) {
 Fraction operator-(const Fraction& frac){
     return Fraction(-frac.numerator(), frac.denominator());
 }
-
+// modifies object (member)
 Fraction& Fraction::operator++() {   // pre-increment (++f)
+    // alters the existing Fraction
     _numerator += _denominator;
     return *this;
 }
 
 Fraction Fraction::operator++(int) { // post-increment (f++)
+    // alters the existing Fraction
     Fraction temp = *this;
     _numerator += _denominator;
     return temp;
@@ -135,16 +142,21 @@ Fraction Fraction::operator++(int) { // post-increment (f++)
 
 
 Fraction& Fraction::operator+=(const Fraction& frac) {
+    // alters the existing Fraction
     *this = *this + frac;
     return *this;
 }
 
 
+// equality checks
 bool operator==(const Fraction& left, const Fraction& right){
     return (left.numerator() == right.numerator() and left.denominator() == right.denominator());
 }
+
+//inequality checks
+
 bool operator!=(const Fraction& left, const Fraction& right){
-    return (not (left.numerator() == right.numerator() and left.denominator() == right.denominator()));
+    return !(left == right);
 }
 
 
@@ -155,15 +167,17 @@ bool operator<(const Fraction& left, const Fraction& right) {
 
 
 bool operator<=(const Fraction& left, const Fraction& right) {
-    return left < right || (left.numerator() == right.numerator() && left.denominator() == right.denominator());
+    return left < right || left == right;
 }
 
 
 bool operator>(const Fraction& left, const Fraction& right) {
+    //inverse operation of >
     return right < left;
 }
 
 
 bool operator>=(const Fraction& left, const Fraction& right) {
+    // inverse operation of <=
     return right <= left;
 }
