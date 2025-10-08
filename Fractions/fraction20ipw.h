@@ -2,13 +2,16 @@
 //  fraction20ipw.h
 //  Fractions
 //
-//  Created by Isaac W on 2025-10-03.
+//  A Fraction class that stores and manipulates fractions in normalized form.
+//  Supports arithmetic operations, comparisons, and I/O.
+//  Created by Isaac Wood on 2025-10-03.
 //
 
 #include <iostream>
 #include <exception>
 
 // throws exception if the denominator is 0 -> divide by 0
+// also is thrown when an invalid fraction is passed in
 class FractionException : public std::exception {
 public:
     const char* what() const noexcept override;

@@ -2,7 +2,9 @@
 //  fraction_20ipw.cpp
 //  Fractions
 //
-//  Created by Isaac W on 2025-10-03.
+//  Implementation of the Fraction class.
+//  All fractions are stored in normalized form with positive denominators.
+//  Created by Isaac Wood on 2025-10-03.
 //
 #include <iostream>
 #include "fraction20ipw.h"
@@ -14,18 +16,22 @@
 Fraction::Fraction(int n) : _numerator(n), _denominator(1) {}
 Fraction::Fraction(int n, int d) {
     if (d == 0) throw FractionException();
+    // double negative case (turn to positive)
     if (d < 0 && n < 0) {
         _numerator = std::abs(n);
         _denominator = std::abs(d);
     }
+    // flip numerator and denom signs
     else if (d < 0) {  // n >= 0
         _numerator = -n;
         _denominator = std::abs(d);
     }
+    // base case
     else {
         _numerator = n;
         _denominator = d;
     }
+    // finds lcd and converts.
     reduce();
 }
 // invalid fraction. could be a non fraction, or denominator = 0
@@ -36,7 +42,7 @@ const char* FractionException::what() const noexcept {
 int Fraction::gcd(int a, int b) {
     return b == 0 ? a : gcd(b, a % b);
 }
-
+// finds LCD and converts fraction
 void Fraction::reduce() {
     int g = gcd(abs(_numerator), _denominator);
     _numerator /= g;
@@ -78,8 +84,6 @@ std::istream& operator>>(std::istream& in, Fraction& frac) {
     }
     catch (const std::invalid_argument&) {
         // stoi failed (non-numeric)
-        // this is best practice to handle invalid streams.
-        in.setstate(std::ios::failbit);
         throw FractionException();
     }
 
@@ -162,6 +166,7 @@ bool operator!=(const Fraction& left, const Fraction& right){
 
 
 bool operator<(const Fraction& left, const Fraction& right) {
+    // cross multiply. this works since denoms are always positive
     return left.numerator() * right.denominator() < right.numerator() * left.denominator();
 }
 
@@ -172,7 +177,7 @@ bool operator<=(const Fraction& left, const Fraction& right) {
 
 
 bool operator>(const Fraction& left, const Fraction& right) {
-    //inverse operation of >
+    //inverse operation of <
     return right < left;
 }
 
